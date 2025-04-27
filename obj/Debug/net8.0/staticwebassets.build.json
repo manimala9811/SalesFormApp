@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "TBgururr9yojRKru39AWYkiX8nriuTc0X1Kht0IGCqU=",
+  "Source": "SalesFormApp",
+  "BasePath": "_content/SalesFormApp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "SalesFormApp\\wwwroot",
+      "Source": "SalesFormApp",
+      "ContentRoot": "C:\\Users\\Admin\\Downloads\\SalesFormApp\\wwwroot\\",
+      "BasePath": "_content/SalesFormApp",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
