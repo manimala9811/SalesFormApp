@@ -13,7 +13,7 @@
 - Responsive design and validation for all fields.
 
 ##Features
-Sales Form with fields:
+- Sales Form with fields:
 
 -Date
 
