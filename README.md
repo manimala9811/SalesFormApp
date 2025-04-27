@@ -15,7 +15,7 @@
 ##Features
 - Sales Form with fields:
 
--Date
+- Date
 
 - User (Dropdown)
 
