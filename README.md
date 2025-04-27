@@ -1,4 +1,4 @@
-- This is a sample ASP.NET Core MVC application developed as part of the second round of POC testing.
+- This is a sample ASP.NET Core MVC application developed for the second round of POC testing.
 
 ##The project demonstrates:
 
