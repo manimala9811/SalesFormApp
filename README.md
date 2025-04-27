@@ -1,22 +1,49 @@
-# SalesFormApp
+- This is a sample ASP.NET Core MVC application developed as part of the second round of POC testing.
 
-## Features
+##The project demonstrates:
 
-- ASP.NET Core MVC form with:
-  - Date picker
-  - User dropdown
-  - Dynamic sales entry grid
-- Sales entry grid supports:
-  - Country and City (cascading dropdowns)
-  - Product dropdown
-  - Qty Sold (integer)
-  - Amount (decimal)
-  - Add (+) new row
-  - Delete row (trash icon)
-- Bootstrap responsive layout
-- Validations for all fields
-- In-memory storage using `List<SalesDetails>`
-- Fully client-side dynamic interaction with JavaScript
+- Creating a dynamic Sales Form with cascading dropdowns (Country → City).
+
+- Adding multiple Sales Items dynamically.
+
+- Saving and viewing submitted data in a List<SalesDetail>.
+
+- Filtering and viewing submitted records by Country.
+
+- Responsive design and validation for all fields.
+
+##Features
+Sales Form with fields:
+
+-Date
+
+- User (Dropdown)
+
+- Sales Details (Country, City, Product, Qty Sold, Amount)
+
+Dynamic Row Addition:
+
+- Ability to add or remove multiple sales item rows dynamically.
+
+Cascading Dropdowns:
+
+- When a country is selected, only the corresponding cities are populated.
+
+Submit and Save:
+
+- Submitted sales details are stored in an in-memory List<SalesDetail>.
+
+View Submitted Records:
+
+- Filter the saved sales based on the selected Country.
+
+- View sales information grouped by Date, User, Products, Cities, Quantity, and Amount.
+
+Responsive Design:
+
+- Works well on desktop and mobile browsers.
+
+
 
 ## Technologies Used
 
