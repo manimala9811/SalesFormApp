@@ -1,0 +1,59 @@
+@model List<SalesFormApp.Models.SalesDetail>
+
+@{
+    ViewData["Title"] = "Submitted Sales Records";
+}
+
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2>Submitted Sales Records</h2>
+
+        @if (!Model.Any())
+        {
+            <p>No records have been submitted yet.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>User ID</th>
+                            <th>Items</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in Model)
+                        {
+                            <tr>
+                                <td>@record.Date.ToShortDateString()</td>
+                                <td>@record.UserId</td>
+                                <td>
+                                    <ul class="mb-0">
+                                        @foreach (var item in record.SalesItems)
+                                        {
+                                            <li>
+                                                Country: @item.CountryId,
+                                                City: @item.CityId,
+                                                Product: @item.ProductId,
+                                                Qty Sold: @item.QtySold,
+                                                Amount: @item.Amount
+                                            </li>
+                                        }
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="text-center mt-3">
+            <a asp-controller="Sales" asp-action="Create" class="btn btn-primary">
+                Back to Form
+            </a>
+        </div>
+    </div>
+</div>

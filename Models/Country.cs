@@ -1,5 +1,8 @@
-public class Country
+namespace SalesFormApp.Models
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public class Country
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 }

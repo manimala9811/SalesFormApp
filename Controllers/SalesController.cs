@@ -1,77 +1,69 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Linq;
+using SalesFormApp.Models;
+using SalesFormApp.ViewModels;
 
-public class SalesController : Controller
+namespace SalesFormApp.Controllers
 {
-    private static List<User> _users = new()
+    public class SalesController : Controller
     {
-        new User { Id = 1, Name = "Mike" },
-        new User { Id = 2, Name = "John" }
-    };
+        private static List<SalesDetail> _savedSales = new List<SalesDetail>();
 
-    private static List<Product> _products = new()
-    {
-        new Product { Id = 1, Name = "Laptop" },
-        new Product { Id = 2, Name = "Smart Watch" },
-        new Product { Id = 3, Name = "Tablet" }
-    };
-
-    private static List<Country> _countries = new()
-    {
-        new Country { Id = 1, Name = "India" },
-        new Country { Id = 2, Name = "China" },
-        new Country { Id = 3, Name = "UAE" }
-    };
-
-    private static List<City> _cities = new()
-    {
-        new City { Id = 1, Name = "Delhi", CountryId = 1 },
-        new City { Id = 2, Name = "Mumbai", CountryId = 1 },
-        new City { Id = 3, Name = "Shanghai", CountryId = 2 },
-        new City { Id = 4, Name = "Dubai", CountryId = 3 },
-        new City { Id = 5, Name = "Abu Dhabi", CountryId = 3 }
-    };
-
-    private static List<SalesDetail> _savedSales = new();
-
-    [HttpGet]
-    public IActionResult Create()
-    {
-        var vm = new SalesFormViewModel
+        [HttpGet]
+        public IActionResult Create()
         {
-            SalesDetail = new SalesDetail(),
-            Users = _users,
-            Products = _products,
-            Countries = _countries,
-            Cities = _cities
-        };
-        return View(vm);
-    }
-
-    [HttpPost]
-    public IActionResult Create(SalesFormViewModel model)
-    {
-        if (ModelState.IsValid)
-        {
-            _savedSales.Add(model.SalesDetail);
-            TempData["Success"] = "Data saved successfully!";
-            return RedirectToAction("Create");
+            var vm = new SalesFormViewModel
+            {
+                Users      = StaticData.GetUsers(),
+                Countries  = StaticData.GetCountries(),
+                Cities     = StaticData.GetCities(),
+                Products   = StaticData.GetProducts(),
+                SavedSales = _savedSales
+            };
+            return View(vm);
         }
 
-        model.Users = _users;
-        model.Products = _products;
-        model.Countries = _countries;
-        model.Cities = _cities;
+        [HttpPost]
+        public IActionResult Create(SalesFormViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                _savedSales.Add(vm.SalesDetail);
+                TempData["SuccessMessage"] = "Sales data submitted successfully!";
+                return RedirectToAction("Create");
+            }
 
-        return View(model);
-    }
+            // Repopulate dropdowns on error
+            vm.Users      = StaticData.GetUsers();
+            vm.Countries  = StaticData.GetCountries();
+            vm.Cities     = StaticData.GetCities();
+            vm.Products   = StaticData.GetProducts();
+            vm.SavedSales = _savedSales;
+            return View(vm);
+        }
 
-    [HttpGet]
-    public JsonResult GetCitiesByCountry(int countryId)
-    {
-        var cities = _cities.Where(c => c.CountryId == countryId).ToList();
-        return Json(cities);
+        [HttpGet]
+         public IActionResult List(int countryId)
+        {
+            // Always return an array (possibly empty), never an error object
+            var result = _savedSales
+                .Where(r => r.SalesItems.Any(si => si.CountryId == countryId))
+                .Select(r => new 
+                {
+                    Date      = r.Date,
+                    UserName  = StaticData.GetUsers().First(u => u.Id == r.UserId).Name,
+                    SalesItems = r.SalesItems.Select(si => new 
+                    {
+                        si.QtySold,
+                        si.Amount,
+                        ProductName = StaticData.GetProducts().First(p => p.Id == si.ProductId).Name,
+                        CityName    = StaticData.GetCities().First(c => c.Id == si.CityId).Name
+                    })
+                })
+                .ToList();
+
+            return Json(result);
+        }
     }
 }

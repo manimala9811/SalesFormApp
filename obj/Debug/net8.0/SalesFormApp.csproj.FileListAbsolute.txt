@@ -37,6 +37,7 @@ C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\salesformapp.csproj.CoreC
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\salesformapp.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\salesformapp.RazorAssemblyInfo.cache
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\salesformapp.RazorAssemblyInfo.cs
+C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\salesformapp.sourcelink.json
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Admin\Downloads\SalesFormApp\obj\Debug\net8.0\staticwebassets\msbuild.salesformapp.Microsoft.AspNetCore.StaticWebAssets.props

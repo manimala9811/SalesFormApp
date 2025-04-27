@@ -1,5 +1,8 @@
-public class Product
+namespace SalesFormApp.Models
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 }

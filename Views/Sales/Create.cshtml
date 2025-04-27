@@ -1,35 +1,43 @@
-@model SalesFormViewModel
+@model SalesFormApp.ViewModels.SalesFormViewModel
+
 @{
-    ViewData["Title"] = "Sales List";
+    ViewData["Title"] = "Sales Form";
 }
 
 <div class="container mt-4">
     <div class="card shadow p-4">
-        <form asp-action="Create" method="post">
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["SuccessMessage"]
+            </div>
+        }
 
+        <form asp-controller="Sales" asp-action="Create" method="post" id="salesForm">
             <div class="row align-items-center mb-3">
-                <div class="col-md-4">
+                <div class="col">
                     <h3>Sales List</h3>
                      <p style="font-size: 14px; font-weight: normal; margin-top: 4px;">Country & City</p>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 col-12">
                     <label class="form-label">Date</label>
                     <input type="date" asp-for="SalesDetail.Date" class="form-control" required />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 col-12">
                     <label class="form-label">User</label>
-                    <select asp-for="SalesDetail.UserId" class="form-select">
+                    <select asp-for="SalesDetail.UserId" class="form-select" id="userDropdown" required>
                         <option value="">Select User</option>
-                        @foreach (var user in Model.Users)
+                        @foreach (var u in Model.Users)
                         {
-                            <option value="@user.Id">@user.Name</option>
+                            <option value="@u.Id">@u.Name</option>
                         }
                     </select>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="salesTable">
+                <table class="table table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Country</th>
@@ -37,88 +45,143 @@
                             <th>Product</th>
                             <th>Qty Sold</th>
                             <th>Amount</th>
-                            <th style="text-align: center;">
-                                <button type="button" class="btn btn-success btn-sm" onclick="addRow()">
-                                    +
-                                </button>
+                            <th style="width:50px;">
+                                <button type="button" class="btn btn-success btn-sm" onclick="addRow()">+</button>
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="salesBody">
-                        <!-- Dynamic rows -->
-                    </tbody>
+                    <tbody id="salesBody"></tbody>
                 </table>
             </div>
 
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
-
         </form>
+
+        <!-- Country Dropdown to filter saved records -->
+        <div class="mt-4">
+            <label class="form-label">Select Country to View Submitted Records:</label>
+            <select id="countryDropdown" class="form-select" onchange="loadRecords()">
+                <option value="">Select Country</option>
+                @foreach (var c in Model.Countries)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <!-- Display Filtered Sales Records -->
+        <div id="filteredSales" class="mt-4"></div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        const countries = @Html.Raw(Json.Serialize(Model.Countries));
-        const cities = @Html.Raw(Json.Serialize(Model.Cities));
-        const products = @Html.Raw(Json.Serialize(Model.Products));
+<script>
+  const countries = @Html.Raw(Json.Serialize(Model.Countries));
+  const cities = @Html.Raw(Json.Serialize(Model.Cities));
+  const products = @Html.Raw(Json.Serialize(Model.Products));
 
-        function addRow() {
-            const index = document.querySelectorAll("#salesBody tr").length;
-            const row = `
-                <tr>
-                    <td>
-                        <select name="SalesDetail.SalesItems[${index}].CountryId" class="form-select" onchange="filterCities(this, ${index})" required>
-                            <option value="">Select Country</option>
-                            ${countries.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td>
-                        <select name="SalesDetail.SalesItems[${index}].CityId" class="form-select" id="city-${index}" required>
-                            <option value="">Select City</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select name="SalesDetail.SalesItems[${index}].ProductId" class="form-select" required>
-                            <option value="">Select Product</option>
-                            ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" name="SalesDetail.SalesItems[${index}].QtySold" class="form-control" min="1" required />
-                    </td>
-                    <td>
-                        <input type="number" name="SalesDetail.SalesItems[${index}].Amount" class="form-control" step="0.01" min="0" required />
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">
-                            🗑
-                        </button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById("salesBody").insertAdjacentHTML('beforeend', row);
+  function addRow() {
+    const idx = document.querySelectorAll("#salesBody tr").length;
+    const row = `
+      <tr>
+        <td>
+          <select name="SalesDetail.SalesItems[${idx}].CountryId" class="form-select"
+                  onchange="filterCities(this, ${idx})" required>
+            <option value="">Select Country</option>
+            ${countries.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <select name="SalesDetail.SalesItems[${idx}].CityId"
+                  class="form-select" id="city-${idx}" required>
+            <option value="">Select City</option>
+          </select>
+        </td>
+        <td>
+          <select name="SalesDetail.SalesItems[${idx}].ProductId"
+                  class="form-select" required>
+            <option value="">Select Product</option>
+            ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="number" name="SalesDetail.SalesItems[${idx}].QtySold"
+                   class="form-control" min="1" required /></td>
+        <td><input type="number" name="SalesDetail.SalesItems[${idx}].Amount"
+                   class="form-control" step="0.01" min="0" required /></td>
+        <td class="text-center">
+          <button type="button" class="btn btn-danger btn-sm"
+                  onclick="deleteRow(this)">🗑</button>
+        </td>
+      </tr>`;
+    document.getElementById("salesBody").insertAdjacentHTML('beforeend', row);
+  }
+
+  function deleteRow(btn) {
+    btn.closest('tr').remove();
+  }
+
+  function filterCities(sel, idx) {
+    const cid = parseInt(sel.value);
+    const list = cities.filter(c => c.countryId === cid);
+    const cd   = document.getElementById(`city-${idx}`);
+    cd.innerHTML = '<option value="">Select City</option>';
+    list.forEach(c => cd.insertAdjacentHTML('beforeend',
+      `<option value="${c.id}">${c.name}</option>`));
+  }
+
+  function loadRecords() {
+    // Hide success message if still visible
+    document.getElementById("successMessage")?.remove();
+
+    const countryId = document.getElementById("countryDropdown").value;
+    const target    = document.getElementById("filteredSales");
+    target.innerHTML = ''; // Clear previous results
+
+    if (!countryId) return;
+
+    const url = '@Url.Action("List","Sales")';
+    fetch(`${url}?countryId=${countryId}`)
+      .then(r => r.json())
+      .then(records => {
+        if (!Array.isArray(records) || records.length === 0) {
+          target.innerHTML = '<p>No records found for this country.</p>';
+          return;
         }
 
-        function deleteRow(button) {
-            button.closest('tr').remove();
-        }
+        let html = '<table class="table table-bordered"><thead>'
+                 + '<tr><th>Date</th><th>User</th><th>Sales Details</th></tr>'
+                 + '</thead><tbody>';
 
-        function filterCities(countrySelect, index) {
-            const selectedCountryId = parseInt(countrySelect.value);
-            const filtered = cities.filter(c => c.countryId === selectedCountryId);
+        records.forEach(rec => {
+          const dt = new Date(rec.Date).toLocaleDateString('en-GB');
+          const items = rec.SalesItems.map(si =>
+            `<li>Product: ${si.ProductName}, City: ${si.CityName}, `
+            + `Qty: ${si.QtySold}, Amt: ${si.Amount}</li>`
+          ).join('');
 
-            const cityDropdown = document.getElementById(`city-${index}`);
-            cityDropdown.innerHTML = '<option value="">Select City</option>';
-            filtered.forEach(city => {
-                const option = document.createElement('option');
-                option.value = city.id;
-                option.textContent = city.name;
-                cityDropdown.appendChild(option);
-            });
-        }
+          html += `<tr>
+                     <td>${dt}</td>
+                     <td>${rec.UserName}</td>
+                     <td><ul>${items}</ul></td>
+                   </tr>`;
+        });
 
-        document.addEventListener("DOMContentLoaded", () => addRow());
-    </script>
+        html += '</tbody></table>';
+        target.innerHTML = html;
+      })
+      .catch(_ => {
+        target.innerHTML = '<p class="text-danger">Error loading records.</p>';
+      });
+  }
+
+  // Hide success message when user interacts with form
+  document.getElementById("salesForm")
+          .addEventListener("change", () =>
+            document.getElementById("successMessage")?.remove()
+          );
+
+  document.addEventListener("DOMContentLoaded", () => addRow());
+</script>
 }
